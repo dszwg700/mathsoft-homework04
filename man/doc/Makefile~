@@ -1,0 +1,30 @@
+LATEX=xelatex #定义变量，指定编译引擎
+LATEXOPT=--shell-escape #定义变量 指定编译参数
+NONSTOP=--interaction=nonstopmode #定义变量 指定编译模式
+LATEXMK=latexmk #采用latexmk来编译latex文档
+LATEXMKOPT=-pdf #latexmk参数 输出pdf
+CONTINUOUS=-pvc #若加入-pvc选项则可以持续检测文件改动并实时显示
+MAIN=hw04 #根文件名称
+SOURCES=$(MAIN).tex Makefile 
+FIGURES := $(shell find figures/* movies/* -type f)
+all:    $(MAIN).pdf
+#$(MAIN).pdf: $(MAIN).tex $(SOURCES) $(FIGURES)
+#	$(LATEXMK) $(LATEXMKOPT) $(CONTINUOUS) \
+#            -pdflatex="$(LATEX) $(LATEXOPT) $(NONSTOP) %O %S" $(MAIN)
+$(MAIN).pdf: $(MAIN).tex $(SOURCES) $(FIGURES)
+ $(LATEXMK) $(LATEXMKOPT)  \
+            -pdflatex="$(LATEX) $(LATEXOPT) $(NONSTOP) %O %S" $(MAIN)
+force:
+ rm $(MAIN).pdf
+ $(LATEXMK) $(LATEXMKOPT) $(CONTINUOUS) \
+            -pdflatex="$(LATEX) $(LATEXOPT) %O %S" $(MAIN)
+clean:
+ $(LATEXMK) -C $(MAIN)
+ rm -f $(MAIN).pdfsync
+ rm -rf *~ *.tmp
+ rm -f *.bbl *.blg *.aux *.end *.fls *.log *.out *.fdb_latexmk
+once:
+ $(LATEXMK) $(LATEXMKOPT) -pdflatex="$(LATEX) $(LATEXOPT) %O %S" $(MAIN)
+debug:
+ $(LATEX) $(LATEXOPT) $(MAIN)
+.PHONY: clean force once all

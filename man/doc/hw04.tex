@@ -1,0 +1,134 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{xltxtra}
+\newtheorem{theorem}{Theorem}
+\usepackage{algorithm}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{subfigure}
+\usepackage{caption}
+\usepackage[hmargin={3.18cm, 3.18cm}, width=14.64cm, vmargin={2.54cm, 2.54cm}, height=24.62cm]{geometry}
+
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}  
+\renewcommand{\algorithmicensure}{\textbf{Output:}}  
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color
+  basicstyle=\footnotesize,        % size of fonts used for the code
+  breaklines=true,                 % automatic line breaking only at whitespace
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{mygreen},    % comment style
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  keywordstyle=\color{blue},       % keyword style
+  stringstyle=\color{mymauve},     % string literal style
+}
+
+\makeatletter
+\newenvironment{breakablealgorithm}
+  {% \begin{breakablealgorithm}
+   \begin{center}
+     \refstepcounter{algorithm}% New algorithm
+     \hrule height.8pt depth0pt \kern2pt% \@fs@pre for \@fs@ruled
+     \renewcommand{\caption}[2][\relax]{% Make a new \caption
+       {\raggedright\textbf{\ALG@name~\thealgorithm} ##2\par}%
+       \ifx\relax##1\relax % #1 is \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##2}%
+       \else % #1 is not \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##1}%
+       \fi
+       \kern2pt\hrule\kern2pt
+     }
+  }{% \end{breakablealgorithm}
+     \kern2pt\hrule\relax% \@fs@post for \@fs@ruled
+   \end{center}
+  }
+\makeatother
+
+\title{Mandelbrot set的生成与探索}
+\author{明安图　\\ 统计学　319101841}
+\date{}
+\bibliographystyle{plain}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  Mandelbrot集是使得函数$f(z)=z^2+c$从$z=0$时开始迭代不会趋于无穷的复数$c$的集合． 本文基于bmp位图提供了一种Mandelbrot set可视化算法以及具体实现方法
+  \par\textbf{关键词：}Mandelbrot set
+\end{abstract}
+
+\section{引言}
+Mandelbrot集的图像表现出一个精心设计的无限复杂的边界，在放大倍率增加的情况下，它揭示了越来越精细的递归细节;在数学上，人们会说曼德布洛特集合的边界是分形曲线.此递归细节的“样式”取决于所检查的集合边界的区域.曼德布洛特集合图像可以通过对复数进行采样和测试来创建，用于每个采样点$c$,序列$f(0),f(f(0))\cdots$是否趋于无穷．
+\section{问题背景介绍}
+Mandekbrot set起源于复杂动力学，法国数学家皮埃尔·法图（Pierre Fatou）和加斯顿·朱莉娅（Gaston Julia）在20世纪初首次研究了这一领域。这个分形于1978年由Robert W. Brooks和Peter Matelski首次定义和绘制，作为对Kleinian群研究的一部分\cite{wikimandelbrot}.Mandelbrot集是复平面上$c$值的集合，对于这个集合，二次映射迭代下的临界点轨道
+$$
+z_{n+1}=z^2_n+c
+$$
+保持有界．即如果$c$属于Mandelbrot集，当且仅当对于所有$n\geq 0,|z_n| \leq 2$.
+\section{数学理论}
+Mandelbrot set基于以下定理\cite{mandelbrotsetweb}：
+\begin{theorem}
+  0的轨道趋于无穷当且仅当它在某些点上的模大于2
+\end{theorem}
+该定理特定于$z \rightarrow z^2+c$，但可以通过改变阈值２来适应其他多项式族．算法伪代码如下：
+\begin{breakablealgorithm}
+\caption{Mandelbrot set algorithm}\label{alg:cap}
+
+\begin{algorithmic}
+  \Require Iteration $N$
+  \Ensure Mandelbrot set
+  \State $z \leftarrow 0$
+
+  \For {each pixel p$(a,b)$ of the image}
+  \State $c \leftarrow a+bi$
+  \For {$i=1 \rightarrow N$}
+   \If {$|z|>2$}
+    \State $p \leftarrow white$
+    \State go to the next pixel
+    \Else
+    \State $z \rightarrow z^2+c$
+   \EndIf
+  \EndFor
+   
+  \If {$z$ reached its natural end}
+  \State $p \leftarrow black$
+  \State go to the next pixel
+  \EndIf
+ \EndFor
+\end{algorithmic}
+\end{breakablealgorithm}
+
+\section{数值算例}
+迭代100次后的图像
+\begin{figure}[H]
+  \subfigure[全图]{
+    \includegraphics[width=.5\textwidth]{01.bmp}}
+   \hspace{0.5in}
+   \subfigure[局部]{
+     \includegraphics[width=.5\textwidth]{02.bmp}}
+   \caption{迭代100次}
+      
+\end{figure}
+迭代20次的图像
+\begin{figure}[H]
+  \subfigure[全图]{
+    \includegraphics[width=.5\textwidth]{03.bmp}}
+  \hspace{0.5in}
+  \subfigure[局部]{
+    \includegraphics[width=.5\textwidth]{04.bmp}}
+  \caption{迭代20次}
+\end{figure}
+
+\section{结论}
+比较上面的结果，可以发现，随着迭代次数的增加，图像的光滑程度下降了，边界上的小图与主图的连接部分变窄．说明Mandelbrot集在当迭代次数趋于无穷时，各个部分之间是完全相切的．
+\bibliography{reference}
+  
+\end{document}
